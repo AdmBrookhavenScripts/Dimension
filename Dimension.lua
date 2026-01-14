@@ -138,3 +138,22 @@ Players.PlayerAdded:Connect(function(player)
 	end)
 end)
 workspace.Vehicles:Destroy()
+RunService.RenderStepped:Connect(Function()
+workspace.FallenPartsDestroyHeight = 0/0
+end)
+local function checkAndDelete(obj)
+	if obj:IsA("BasePart") then
+		if obj.CanCollide == true and obj.Anchored == false then
+			obj:Destroy()
+		end
+	end
+end
+
+for _, obj in ipairs(workspace:GetDescendants()) do
+	checkAndDelete(obj)
+end
+
+workspace.DescendantAdded:Connect(function(obj)
+	task.wait()
+	checkAndDelete(obj)
+end)
