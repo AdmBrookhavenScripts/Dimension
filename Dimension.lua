@@ -1,8 +1,3 @@
-if getgenv().Executed then
-    return
-end
-getgenv().Executed = true
-
 task.spawn(function()
 local Players = game:GetService("Players")
 local protectedPosition = Vector3.new(
@@ -141,8 +136,20 @@ workspace.Vehicles:Destroy()
 RunService.RenderStepped:Connect(function()
 workspace.FallenPartsDestroyHeight = 0/0
 end)
+local Players = game:GetService("Players")
+
+local function isPlayerPart(obj)
+	local model = obj:FindFirstAncestorOfClass("Model")
+	if not model then return false end
+	return model:FindFirstChildOfClass("Humanoid") ~= nil
+end
+
 local function checkAndDelete(obj)
 	if obj:IsA("BasePart") then
+		if isPlayerPart(obj) then
+			return
+		end
+
 		if obj.CanCollide == true and obj.Anchored == false then
 			obj:Destroy()
 		end
