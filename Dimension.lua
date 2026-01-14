@@ -10,8 +10,10 @@ local protectedPosition = Vector3.new(
 	248.523666,
 	751.720093
 )
+
 local closestPart = nil
 local shortestDistance = math.huge
+
 for _, obj in ipairs(workspace:GetDescendants()) do
 	if obj:IsA("BasePart") then
 		local distance = (obj.Position - protectedPosition).Magnitude
@@ -31,9 +33,15 @@ for _, obj in ipairs(workspace:GetDescendants()) do
 		if obj == closestPart then
 			continue
 		end
+
 		if Players:GetPlayerFromCharacter(obj.Parent) then
 			continue
 		end
+		
+		if obj:IsDescendantOf(workspace.WorkspaceCom["001_TrafficCones"]) then
+			continue
+		end
+
 		obj:Destroy()
 	end
 end
@@ -147,27 +155,64 @@ workspace.Vehicles:Destroy()
 RunService.RenderStepped:Connect(function()
 workspace.FallenPartsDestroyHeight = 0/0
 end)
+game:GetService("Players").LocalPlayer.PlayerScripts.BulletVisualizerScript.Disabled = true
 local Players = game:GetService("Players")
-local function isPlayerPart(obj)
+local Workspace = game:GetService("Workspace")
+local function IsFromPlayer(obj)
 	local model = obj:FindFirstAncestorOfClass("Model")
 	if not model then return false end
-	return model:FindFirstChildOfClass("Humanoid") ~= nil
+	return Players:GetPlayerFromCharacter(model) ~= nil
 end
-local function checkAndDelete(obj)
-	if obj:IsA("BasePart") then
-		if isPlayerPart(obj) then
-			return
-		end
-		if obj.CanCollide == true and obj.Anchored == false then
-			obj:Destroy()
-		end
+local function CheckAndDestroy(obj)
+	if not obj:IsA("BasePart") then return end
+	if obj.Anchored then return end
+	if not obj.CanCollide then return end
+	if IsFromPlayer(obj) then return end
+	obj:Destroy()
+end
+for _, obj in ipairs(Workspace:GetDescendants()) do
+	CheckAndDestroy(obj)
+end
+Workspace.DescendantAdded:Connect(function(obj)
+	task.wait()
+	CheckAndDestroy(obj)
+end)
+do
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Folder = workspace:WaitForChild("WorkspaceCom"):WaitForChild("001_TrafficCones")
+local function isFriend(playerName)
+	local targetPlayer = Players:FindFirstChild(playerName)
+	if not targetPlayer then
+		return false
+	end
+	local success, result = pcall(function()
+		return LocalPlayer:IsFriendsWith(targetPlayer.UserId)
+	end)
+	return success and result
+end
+local function handleModel(model)
+	if not model:IsA("Model") then
+		return
+	end
+	local name = model.Name
+	if not name:sub(1, 4) == "Prop" then
+		return
+	end
+	local playerName = name:sub(5)
+	if playerName == "" then
+		return
+	end
+	if not isFriend(playerName) then
+		model:Destroy()
 	end
 end
-for _, obj in ipairs(workspace:GetDescendants()) do
-	checkAndDelete(obj)
+for _, obj in ipairs(Folder:GetChildren()) do
+	handleModel(obj)
 end
-workspace.DescendantAdded:Connect(function(obj)
-	task.wait()
-	checkAndDelete(obj)
+Folder.ChildAdded:Connect(function(obj)
+	task.wait(0.1)
+	handleModel(obj)
 end)
-game:GetService("Players").LocalPlayer.PlayerScripts.BulletVisualizerScript.Disabled = true
+end
+workspace["001_Lots"]:Destroy()
