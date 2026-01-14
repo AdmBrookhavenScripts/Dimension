@@ -1,3 +1,8 @@
+if getgenv().Executed then
+    return
+end
+getgenv().Executed = true
+
 task.spawn(function()
 local Players = game:GetService("Players")
 local protectedPosition = Vector3.new(
@@ -164,3 +169,4 @@ workspace.DescendantAdded:Connect(function(obj)
 	task.wait()
 	checkAndDelete(obj)
 end)
+game:GetService("Players").LocalPlayer.PlayerScripts.BulletVisualizerScript.Disabled = true
