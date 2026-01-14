@@ -1,3 +1,8 @@
+if getgenv().Executed then
+    return
+end
+getgenv().Executed = true
+
 task.spawn(function()
 local Players = game:GetService("Players")
 local protectedPosition = Vector3.new(
