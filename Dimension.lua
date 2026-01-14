@@ -138,7 +138,7 @@ Players.PlayerAdded:Connect(function(player)
 	end)
 end)
 workspace.Vehicles:Destroy()
-RunService.RenderStepped:Connect(Function()
+RunService.RenderStepped:Connect(function()
 workspace.FallenPartsDestroyHeight = 0/0
 end)
 local function checkAndDelete(obj)
