@@ -119,22 +119,28 @@ local function shouldRemove(player)
 	end)
 	return not (success and isFriend)
 end
-local function removeCharacter(player)
-	if shouldRemove(player) and player.Character then
+local function removePlayer(player)
+	if not shouldRemove(player) then
+		return
+	end
+	if player.Character then
 		player.Character:Destroy()
 	end
+	pcall(function()
+		player:Destroy()
+	end)
 end
 for _, player in ipairs(Players:GetPlayers()) do
-	removeCharacter(player)
+	removePlayer(player)
 	player.CharacterAdded:Connect(function()
 		task.wait(0.1)
-		removeCharacter(player)
+		removePlayer(player)
 	end)
 end
 Players.PlayerAdded:Connect(function(player)
 	player.CharacterAdded:Connect(function()
 		task.wait(0.1)
-		removeCharacter(player)
+		removePlayer(player)
 	end)
 end)
 workspace.Vehicles:Destroy()
@@ -142,29 +148,24 @@ RunService.RenderStepped:Connect(function()
 workspace.FallenPartsDestroyHeight = 0/0
 end)
 local Players = game:GetService("Players")
-
 local function isPlayerPart(obj)
 	local model = obj:FindFirstAncestorOfClass("Model")
 	if not model then return false end
 	return model:FindFirstChildOfClass("Humanoid") ~= nil
 end
-
 local function checkAndDelete(obj)
 	if obj:IsA("BasePart") then
 		if isPlayerPart(obj) then
 			return
 		end
-
 		if obj.CanCollide == true and obj.Anchored == false then
 			obj:Destroy()
 		end
 	end
 end
-
 for _, obj in ipairs(workspace:GetDescendants()) do
 	checkAndDelete(obj)
 end
-
 workspace.DescendantAdded:Connect(function(obj)
 	task.wait()
 	checkAndDelete(obj)
