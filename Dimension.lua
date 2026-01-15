@@ -183,7 +183,7 @@ for _, v in ipairs(workspace:GetDescendants()) do
     end
 end
 if nearest then
-    nearest.Size = Vector3.new(2000, 1, 2000)
+    nearest.Size = Vector3.new(20000, 1, 20000)
     nearest.Position = targetPos
     nearest.Orientation = Vector3.new(0, 0, 0)
     nearest.Anchored = true
