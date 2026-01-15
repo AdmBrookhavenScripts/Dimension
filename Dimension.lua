@@ -49,14 +49,14 @@ if not isfolder(folder) then
 end
 
 local SkyboxFiles = {
-    Up = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Up.png",
-    Down  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Down.png",
-    Front = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Front.png",
-    Back  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Back.png",
-    Left  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Left.png",
-    Right = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Right.png",
-    ["1000350673"] = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/1000350673.png",
-    ["Mp3.mp3"] = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Mp3.mp3",
+    Up    = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Up.png",
+    Down  = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Down.png",
+    Front = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Front.png",
+    Back  = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Back.png",
+    Left  = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Left.png",
+    Right = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Right.png",
+    ["1000350673"] = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/1000350673.png",
+    ["Mp3.mp3"]    = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Mp3.mp3",
 }
 
 local total = 0
@@ -67,7 +67,13 @@ end
 local done = 0
 
 for name, url in pairs(SkyboxFiles) do
-    local path = folder .. "/" .. name
+    local fileName = name
+
+    if not fileName:match("%.") then
+        fileName = fileName .. ".png"
+    end
+
+    local path = folder .. "/" .. fileName
     if not isfile(path) then
         writefile(path, game:HttpGet(url))
     end
@@ -77,11 +83,23 @@ end
 
 gui:Destroy()
 
-for _, v in ipairs(Lighting:GetChildren()) do
-    if v:IsA("Sky") then
-        v:Destroy()
+local function waitFile(path, timeout)
+    local t = os.clock()
+    while not isfile(path) do
+        if os.clock() - t > (timeout or 5) then
+            return false
+        end
+        task.wait()
     end
+    return true
 end
+
+waitFile(folder.."/Up.png")
+waitFile(folder.."/Down.png")
+waitFile(folder.."/Front.png")
+waitFile(folder.."/Back.png")
+waitFile(folder.."/Left.png")
+waitFile(folder.."/Right.png")
 
 local BlueSkybox = Instance.new("Sky")
 BlueSkybox.SkyboxUp = getcustomasset(folder .. "/Up.png")
