@@ -369,4 +369,3 @@ if localPlayer.Character then
   end
 end
 workspace.Baseplate:Destroy()
-game:GetService("Players").LocalPlayer.PlayerGui.Player8Handler.Disabled = true
