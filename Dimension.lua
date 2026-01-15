@@ -277,10 +277,18 @@ Folder.ChildAdded:Connect(function(obj)
 end)
 end
 workspace["001_Lots"]:Destroy()
+
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 local localPlayer = Players.LocalPlayer
-TextChatService.OnIncomingMessage = function(message)
+
+do
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+local function onCharacterAdded(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    TextChatService.OnIncomingMessage = function(message)
 	if not message.TextSource then
 		return
 	end
@@ -296,5 +304,11 @@ TextChatService.OnIncomingMessage = function(message)
 		props.PrefixTextTransparency = 1
 		return props
 	end
+  end
+end
+localPlayer.CharacterAdded:Connect(onCharacterAdded)
+if localPlayer.Character then
+    onCharacterAdded(localPlayer.Character)
+  end
 end
 workspace.Baseplate:Destroy()
