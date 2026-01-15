@@ -430,6 +430,10 @@ local function isFromMap(sound)
 	return false
 end
 local function shouldMute(sound)
+	if sound.Parent == workspace then
+		return false
+	end
+
 	local character = getCharacterFromInstance(sound)
 	if character then
 		if isInsideNoMotorModel(sound) then
@@ -437,12 +441,15 @@ local function shouldMute(sound)
 		end
 		return false
 	end
+
 	if isFromTool(sound) then
 		return true
 	end
+
 	if isFromMap(sound) then
 		return true
 	end
+
 	return false
 end
 local function muteSound(sound)
