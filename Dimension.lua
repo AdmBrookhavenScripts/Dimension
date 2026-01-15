@@ -49,7 +49,7 @@ if not isfolder(folder) then
 end
 
 local SkyboxFiles = {
-    Up    = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Up.png",
+    Up = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Up.png",
     Down  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Down.png",
     Front = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Front.png",
     Back  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Back.png",
@@ -195,6 +195,53 @@ if nearest then
         end
     end
     teleportPlayer()
+    task.spawn(function()
+    do
+    task.wait(5)
+    local TweenService = game:GetService("TweenService")
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.Parent = game:GetService("CoreGui")
+
+local text = Instance.new("TextLabel")
+text.Size = UDim2.new(1, 0, 0, 70)
+text.Position = UDim2.new(0.5, 0, 0.5, 0)
+text.AnchorPoint = Vector2.new(0.5, 0.5)
+text.BackgroundTransparency = 1
+text.Text = "- Non-existent Dimension -"
+text.TextColor3 = Color3.new(1, 1, 1)
+text.TextTransparency = 1
+text.TextStrokeTransparency = 1
+text.Font = Enum.Font.SciFi
+text.TextSize = 40
+text.TextXAlignment = Enum.TextXAlignment.Center
+text.TextYAlignment = Enum.TextYAlignment.Center
+text.Parent = gui
+
+local fadeIn = TweenService:Create(
+	text,
+	TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+	{TextTransparency = 0, TextStrokeTransparency = 0.3}
+)
+
+local fadeOut = TweenService:Create(
+	text,
+	TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+	{TextTransparency = 1, TextStrokeTransparency = 1}
+)
+
+fadeIn:Play()
+fadeIn.Completed:Wait()
+
+task.wait(3)
+
+fadeOut:Play()
+fadeOut.Completed:Wait()
+
+gui:Destroy()
+end
+end)
     RunService.RenderStepped:Connect(function()
         if LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = LocalPlayer.Character.HumanoidRootPart
