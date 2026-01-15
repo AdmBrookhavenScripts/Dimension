@@ -56,6 +56,7 @@ local SkyboxFiles = {
     Left  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Left.png",
     Right = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Right.png",
     ["1000350673"] = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/1000350673.png",
+    ["Mp3.mp3"] = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Mp3.mp3",
 }
 
 local total = 0
@@ -66,7 +67,7 @@ end
 local done = 0
 
 for name, url in pairs(SkyboxFiles) do
-    local path = folder .. "/" .. name .. ".png"
+    local path = folder .. "/" .. name
     if not isfile(path) then
         writefile(path, game:HttpGet(url))
     end
@@ -143,8 +144,11 @@ task.wait(1)
 -- Instances
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
+Lighting.TimeOfDay = "14:00:00"
+Lighting:GetPropertyChangedSignal("ClockTime"):Connect(function()
+	Lighting.ClockTime = 14
+end)
 RunService.RenderStepped:Connect(function()
-    Lighting.ClockTime = 14
 for _, player in ipairs(Players:GetPlayers()) do
     if player ~= LocalPlayer then
         local ok, isFriend = pcall(function()
@@ -262,6 +266,12 @@ Sound.Volume = 1
 Sound.Looped = true
 Sound.Parent = workspace
 Sound:Play()
+local Sound1 = Instance.new("Sound")
+Sound1.SoundId = getcustomasset(folder .. "/Mp3.mp3")
+Sound1.Volume = 1
+Sound1.Looped = true
+Sound1.Parent = workspace
+Sound1:Play()
 workspace.Vehicles:Destroy()
 RunService.RenderStepped:Connect(function()
 workspace.FallenPartsDestroyHeight = 0/0
@@ -359,3 +369,4 @@ if localPlayer.Character then
   end
 end
 workspace.Baseplate:Destroy()
+game:GetService("Players").LocalPlayer.PlayerGui.Player8Handler.Disabled = true
