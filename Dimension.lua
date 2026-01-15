@@ -216,3 +216,28 @@ Folder.ChildAdded:Connect(function(obj)
 end)
 end
 workspace["001_Lots"]:Destroy()
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local localPlayer = Players.LocalPlayer
+TextChatService.OnIncomingMessage = function(message)
+	if not message.TextSource then
+		return
+	end
+	local speaker = Players:GetPlayerByUserId(message.TextSource.UserId)
+	if not speaker then
+		return
+	end
+	if speaker == localPlayer then
+		return
+	end
+	if localPlayer:IsFriendsWith(speaker.UserId) then
+		return
+	end
+	local props = Instance.new("TextChatMessageProperties")
+	props.Text = ""
+	props.PrefixText = ""
+	props.BackgroundTransparency = 1
+	props.TextTransparency = 1
+	props.PrefixTextTransparency = 1
+	return props
+end
