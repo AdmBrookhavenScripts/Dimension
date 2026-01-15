@@ -2,7 +2,100 @@ if getgenv().Executed then
     return
 end
 getgenv().Executed = true
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local holder = Instance.new("Frame")
+holder.Size = UDim2.new(0,260,0,40)
+holder.Position = UDim2.new(0,20,1,-60)
+holder.BackgroundTransparency = 1
+holder.Parent = gui
+
+local text = Instance.new("TextLabel")
+text.Size = UDim2.new(1,0,0,18)
+text.Position = UDim2.new(0,0,0,5)
+text.BackgroundTransparency = 1
+text.Text = "Fazendo download dos assets"
+text.TextColor3 = Color3.fromRGB(255,255,255)
+text.TextSize = 14
+text.Font = Enum.Font.Gotham
+text.TextXAlignment = Enum.TextXAlignment.Left
+text.Parent = holder
+
+local barBg = Instance.new("Frame")
+barBg.Size = UDim2.new(1,0,0,6)
+barBg.Position = UDim2.new(0,0,1,-6)
+barBg.BackgroundTransparency = 1
+barBg.Parent = holder
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0,0,1,0)
+bar.BackgroundColor3 = Color3.fromRGB(80,255,220)
+bar.Parent = barBg
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(1,0)
+corner.Parent = bar
+
+local folder = "CustomSkybox"
+if not isfolder(folder) then
+    makefolder(folder)
+end
+
+local SkyboxFiles = {
+    Up    = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Up.png",
+    Down  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Down.png",
+    Front = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Front.png",
+    Back  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Back.png",
+    Left  = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Left.png",
+    Right = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/Right.png",
+    ["1000350673"] = "https://github.com/AdmBrookhavenScripts/Skybox/raw/refs/heads/main/1000350673.png",
+}
+
+local total = 0
+for _ in pairs(SkyboxFiles) do
+    total += 1
+end
+
+local done = 0
+
+for name, url in pairs(SkyboxFiles) do
+    local path = folder .. "/" .. name .. ".png"
+    if not isfile(path) then
+        writefile(path, game:HttpGet(url))
+    end
+    done += 1
+    bar.Size = UDim2.new(done / total, 0, 1, 0)
+end
+
+gui:Destroy()
+
+for _, v in ipairs(Lighting:GetChildren()) do
+    if v:IsA("Sky") then
+        v:Destroy()
+    end
+end
+
+local BlueSkybox = Instance.new("Sky")
+BlueSkybox.SkyboxUp = getcustomasset(folder .. "/Up.png")
+BlueSkybox.SkyboxDn = getcustomasset(folder .. "/Down.png")
+BlueSkybox.SkyboxFt = getcustomasset(folder .. "/Front.png")
+BlueSkybox.SkyboxBk = getcustomasset(folder .. "/Back.png")
+BlueSkybox.SkyboxLf = getcustomasset(folder .. "/Left.png")
+BlueSkybox.SkyboxRt = getcustomasset(folder .. "/Right.png")
+BlueSkybox.SunTextureId = getcustomasset(folder .. "/1000350673.png")
+BlueSkybox.MoonTextureId = getcustomasset(folder .. "/1000350673.png")
+BlueSkybox.SunAngularSize = 150
+BlueSkybox.MoonAngularSize = 150
+BlueSkybox.Parent = Lighting
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 task.spawn(function()
 local Players = game:GetService("Players")
 local protectedPosition = Vector3.new(
@@ -48,24 +141,30 @@ end
 end)
 task.wait(1)
 -- Instances
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Lighting = game:GetService("Lighting")
-local BlueSkybox = Instance.new("Sky")
-BlueSkybox.SkyboxBk = "rbxassetid://16269815885"
-BlueSkybox.SkyboxDn = "rbxassetid://16269839652"
-BlueSkybox.SkyboxFt = "rbxassetid://16269798011"
-BlueSkybox.SkyboxLf = "rbxassetid://114269624906246"
-BlueSkybox.SkyboxRt = "rbxassetid://16269814948"
-BlueSkybox.SkyboxUp = "rbxassetid://16269829700"
-BlueSkybox.SunTextureId = "rbxassetid://109499512560744"
-BlueSkybox.MoonTextureId = "rbxassetid://109499512560744"
-BlueSkybox.SunAngularSize = 150
-BlueSkybox.MoonAngularSize = 150
-BlueSkybox.Parent = Lighting
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 RunService.RenderStepped:Connect(function()
     Lighting.ClockTime = 14
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then
+        local ok, isFriend = pcall(function()
+            return LocalPlayer:IsFriendsWith(player.UserId)
+        end)
+        if not ok or not isFriend then
+            player.Character:Destroy()
+        end
+    end
+end
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then
+        local ok, isFriend = pcall(function()
+            return LocalPlayer:IsFriendsWith(player.UserId)
+        end)
+        if not ok or not isFriend then
+            player:Destroy()
+        end
+    end
+end
 end)
 -- Functions
 local RunService = game:GetService("RunService")
@@ -116,69 +215,6 @@ Sound.Volume = 1
 Sound.Looped = true
 Sound.Parent = workspace
 Sound:Play()
-do
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local function isFriend(player)
-	if player == LocalPlayer then
-		return true
-	end
-
-	local ok, result = pcall(function()
-		return LocalPlayer:IsFriendsWith(player.UserId)
-	end)
-
-	return ok and result
-end
-
-local function wipeCharacter(player)
-	if isFriend(player) then
-		return
-	end
-	if player.Character then
-		player.Character:BreakJoints()
-		player.Character:Destroy()
-	end
-end
-
-local function wipeAnyCharacterModel(model)
-	if not model:IsA("Model") then
-		return
-	end
-
-	local player = Players:GetPlayerFromCharacter(model)
-	if not player then
-		return
-	end
-
-	if isFriend(player) then
-		return
-	end
-
-	model:BreakJoints()
-	model:Destroy()
-end
-
-for _, player in ipairs(Players:GetPlayers()) do
-	wipeCharacter(player)
-	player.CharacterAdded:Connect(function(char)
-		task.wait()
-		wipeCharacter(player)
-	end)
-end
-Players.PlayerAdded:Connect(function(player)
-	player.CharacterAdded:Connect(function()
-		task.wait()
-		wipeCharacter(player)
-	end)
-end)
-workspace.DescendantAdded:Connect(function(obj)
-	if obj:IsA("Model") then
-		wipeAnyCharacterModel(obj)
-	end
-end)
-end
 workspace.Vehicles:Destroy()
 RunService.RenderStepped:Connect(function()
 workspace.FallenPartsDestroyHeight = 0/0
@@ -209,38 +245,35 @@ do
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Folder = workspace:WaitForChild("WorkspaceCom"):WaitForChild("001_TrafficCones")
+
 local function isFriend(playerName)
-	local targetPlayer = Players:FindFirstChild(playerName)
-	if not targetPlayer then
-		return false
-	end
-	local success, result = pcall(function()
-		return LocalPlayer:IsFriendsWith(targetPlayer.UserId)
-	end)
-	return success and result
+    local targetPlayer = Players:FindFirstChild(playerName)
+    if not targetPlayer then return false end
+    local ok, result = pcall(function()
+        return LocalPlayer:IsFriendsWith(targetPlayer.UserId)
+    end)
+    return ok and result
 end
+
 local function handleModel(model)
-	if not model:IsA("Model") then
-		return
-	end
-	local name = model.Name
-	if not name:sub(1, 4) == "Prop" then
-		return
-	end
-	local playerName = name:sub(5)
-	if playerName == "" then
-		return
-	end
-	if not isFriend(playerName) then
-		model:Destroy()
-	end
+    if not model:IsA("Model") then return end
+    local name = model.Name
+    if name:sub(1, 4) ~= "Prop" then return end
+    local playerName = name:sub(5)
+    if playerName == "" then return end
+    if playerName == LocalPlayer.Name then return end
+    if not isFriend(playerName) then
+        model:Destroy()
+    end
 end
+
 for _, obj in ipairs(Folder:GetChildren()) do
-	handleModel(obj)
+    handleModel(obj)
 end
+
 Folder.ChildAdded:Connect(function(obj)
-	task.wait(0.1)
-	handleModel(obj)
+    task.wait(0.1)
+    handleModel(obj)
 end)
 end
 workspace["001_Lots"]:Destroy()
@@ -251,22 +284,17 @@ TextChatService.OnIncomingMessage = function(message)
 	if not message.TextSource then
 		return
 	end
-	local speaker = Players:GetPlayerByUserId(message.TextSource.UserId)
-	if not speaker then
+	if message.TextSource.UserId == localPlayer.UserId then
 		return
 	end
-	if speaker == localPlayer then
-		return
+	if not localPlayer:IsFriendsWith(message.TextSource.UserId) then
+		local props = Instance.new("TextChatMessageProperties")
+		props.Text = ""
+		props.PrefixText = ""
+		props.BackgroundTransparency = 1
+		props.TextTransparency = 1
+		props.PrefixTextTransparency = 1
+		return props
 	end
-	if localPlayer:IsFriendsWith(speaker.UserId) then
-		return
-	end
-	local props = Instance.new("TextChatMessageProperties")
-	props.Text = ""
-	props.PrefixText = ""
-	props.BackgroundTransparency = 1
-	props.TextTransparency = 1
-	props.PrefixTextTransparency = 1
-	return props
 end
 workspace.Baseplate:Destroy()
