@@ -387,3 +387,88 @@ if localPlayer.Character then
   end
 end
 workspace.Baseplate:Destroy()
+local function getCharacterFromInstance(inst)
+	while inst do
+		if inst:IsA("Model") then
+			local plr = Players:GetPlayerFromCharacter(inst)
+			if plr then
+				return inst
+			end
+		end
+		inst = inst.Parent
+	end
+	return nil
+end
+local function isInsideNoMotorModel(sound)
+	local parent = sound.Parent
+	while parent do
+		if parent:IsA("Model") and parent.Name == "NoMotorVehicleModel" then
+			return true
+		end
+		parent = parent.Parent
+	end
+	return false
+end
+local function isFromTool(sound)
+	local parent = sound.Parent
+	while parent do
+		if parent:IsA("Tool") then
+			return true
+		end
+		parent = parent.Parent
+	end
+	return false
+end
+local function isFromMap(sound)
+	local parent = sound.Parent
+	while parent do
+		if parent:IsA("BasePart") or parent:IsA("Model") then
+			return true
+		end
+		parent = parent.Parent
+	end
+	return false
+end
+local function shouldMute(sound)
+	local character = getCharacterFromInstance(sound)
+	if character then
+		if isInsideNoMotorModel(sound) then
+			return true
+		end
+		return false
+	end
+	if isFromTool(sound) then
+		return true
+	end
+	if isFromMap(sound) then
+		return true
+	end
+	return false
+end
+local function muteSound(sound)
+	if not sound:IsA("Sound") then return end
+	if not shouldMute(sound) then return end
+	sound.Volume = 0
+	sound.Looped = false
+	sound:GetPropertyChangedSignal("Volume"):Connect(function()
+		if sound.Volume ~= 0 then
+			sound.Volume = 0
+		end
+	end)
+	sound:GetPropertyChangedSignal("Playing"):Connect(function()
+		if sound.Playing then
+			sound:Stop()
+		end
+	end)
+end
+for _, obj in ipairs(game:GetDescendants()) do
+	if obj:IsA("Sound") then
+		muteSound(obj)
+	end
+end
+game.DescendantAdded:Connect(function(obj)
+	if obj:IsA("Sound") then
+		task.wait()
+		muteSound(obj)
+	end
+end)
