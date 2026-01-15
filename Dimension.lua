@@ -116,41 +116,69 @@ Sound.Volume = 1
 Sound.Looped = true
 Sound.Parent = workspace
 Sound:Play()
+do
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local function shouldRemove(player)
+
+local function isFriend(player)
 	if player == LocalPlayer then
-		return false
+		return true
 	end
-	local success, isFriend = pcall(function()
+
+	local ok, result = pcall(function()
 		return LocalPlayer:IsFriendsWith(player.UserId)
 	end)
-	return not (success and isFriend)
+
+	return ok and result
 end
-local function removePlayer(player)
-	if not shouldRemove(player) then
+
+local function wipeCharacter(player)
+	if isFriend(player) then
 		return
 	end
 	if player.Character then
+		player.Character:BreakJoints()
 		player.Character:Destroy()
 	end
-	pcall(function()
-		player:Destroy()
-	end)
 end
+
+local function wipeAnyCharacterModel(model)
+	if not model:IsA("Model") then
+		return
+	end
+
+	local player = Players:GetPlayerFromCharacter(model)
+	if not player then
+		return
+	end
+
+	if isFriend(player) then
+		return
+	end
+
+	model:BreakJoints()
+	model:Destroy()
+end
+
 for _, player in ipairs(Players:GetPlayers()) do
-	removePlayer(player)
-	player.CharacterAdded:Connect(function()
-		task.wait(0.1)
-		removePlayer(player)
+	wipeCharacter(player)
+	player.CharacterAdded:Connect(function(char)
+		task.wait()
+		wipeCharacter(player)
 	end)
 end
 Players.PlayerAdded:Connect(function(player)
 	player.CharacterAdded:Connect(function()
-		task.wait(0.1)
-		removePlayer(player)
+		task.wait()
+		wipeCharacter(player)
 	end)
 end)
+workspace.DescendantAdded:Connect(function(obj)
+	if obj:IsA("Model") then
+		wipeAnyCharacterModel(obj)
+	end
+end)
+end
 workspace.Vehicles:Destroy()
 RunService.RenderStepped:Connect(function()
 workspace.FallenPartsDestroyHeight = 0/0
@@ -241,3 +269,4 @@ TextChatService.OnIncomingMessage = function(message)
 	props.PrefixTextTransparency = 1
 	return props
 end
+workspace.Baseplate:Destroy()
