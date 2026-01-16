@@ -506,7 +506,6 @@ aurora.Parent = Workspace
 if aurora:IsA("Model") then
     local primary = aurora.PrimaryPart or aurora:FindFirstChildWhichIsA("BasePart", true)
     if not primary then
-        warn("Model sem BasePart")
         return
     end
 
