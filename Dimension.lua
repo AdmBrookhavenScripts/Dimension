@@ -49,9 +49,9 @@ if not isfolder(folder) then
 end
 
 local SkyboxFiles = {
-    Up    = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Up.png",
+    Up = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Up.png",
     Down  = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Down.png",
-    Front = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Front.png",
+    Front1 = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Front1.png",
     Back  = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Back.png",
     Left  = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Left.png",
     Right = "https://raw.githubusercontent.com/AdmBrookhavenScripts/Skybox/main/Right.png",
@@ -104,7 +104,7 @@ waitFile(folder.."/Right.png")
 local BlueSkybox = Instance.new("Sky")
 BlueSkybox.SkyboxUp = getcustomasset(folder .. "/Up.png")
 BlueSkybox.SkyboxDn = getcustomasset(folder .. "/Down.png")
-BlueSkybox.SkyboxFt = getcustomasset(folder .. "/Front.png")
+BlueSkybox.SkyboxFt = getcustomasset(folder .. "/Front1.png")
 BlueSkybox.SkyboxBk = getcustomasset(folder .. "/Back.png")
 BlueSkybox.SkyboxLf = getcustomasset(folder .. "/Left.png")
 BlueSkybox.SkyboxRt = getcustomasset(folder .. "/Right.png")
@@ -479,3 +479,40 @@ game.DescendantAdded:Connect(function(obj)
 		muteSound(obj)
 	end
 end)
+do
+local Workspace = game:GetService("Workspace")
+
+local ASSET_ID = "rbxassetid://4556126742"
+
+local AURORA_CFRAME = CFrame.new(
+    -99508, 100300, -98750,
+     0.0535113998,  -0.0104797706, -0.998512268,
+    -0.0100235129,   0.999888897,  -0.0110313902,
+     0.998516917,    0.0105989054,  0.0534004122
+)
+
+local objects
+pcall(function()
+    objects = game:GetObjects(ASSET_ID)
+end)
+
+if not objects or not objects[1] then
+    return
+end
+
+local aurora = objects[1]
+aurora.Parent = Workspace
+
+if aurora:IsA("Model") then
+    local primary = aurora.PrimaryPart or aurora:FindFirstChildWhichIsA("BasePart", true)
+    if not primary then
+        warn("Model sem BasePart")
+        return
+    end
+
+    aurora.PrimaryPart = primary
+    aurora:SetPrimaryPartCFrame(AURORA_CFRAME)
+else
+    aurora.CFrame = AURORA_CFRAME
+end
+end
