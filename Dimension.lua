@@ -2,6 +2,44 @@ if getgenv().Executed then
     return
 end
 getgenv().Executed = true
+do
+local Workspace = game:GetService("Workspace")
+local ASSET_ID = "rbxassetid://4556126742"
+local AURORA_CFRAME = CFrame.new(
+    -99508, -99300, -98500,
+     0.0535113998,  -0.0104797706, -0.998512268,
+    -0.0100235129,   0.999888897,  -0.0110313902,
+     0.998516917,    0.0105989054,  0.0534004122
+)
+local objects
+pcall(function()
+    objects = game:GetObjects(ASSET_ID)
+end)
+if not objects or not objects[1] then
+    return
+end
+local aurora = objects[1]
+aurora.Parent = Workspace
+aurora.Name = "ProtectedAurora"
+aurora:SetAttribute("Protected", true)
+for _, v in ipairs(aurora:GetDescendants()) do
+	if v:IsA("BasePart") then
+		v.Anchored = true
+		v.CanCollide = false
+		v:SetAttribute("Protected", true)
+	end
+end
+if aurora:IsA("Model") then
+    local primary = aurora.PrimaryPart or aurora:FindFirstChildWhichIsA("BasePart", true)
+    if not primary then
+        return
+    end
+    aurora.PrimaryPart = primary
+    aurora:SetPrimaryPartCFrame(AURORA_CFRAME)
+else
+    aurora.CFrame = AURORA_CFRAME
+end
+end
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -174,6 +212,7 @@ Lighting:GetPropertyChangedSignal("ClockTime"):Connect(function()
 	Lighting.ClockTime = 14
 end)
 RunService.RenderStepped:Connect(function()
+workspace.FallenPartsDestroyHeight = 0/0
 for _, player in ipairs(Players:GetPlayers()) do
     if player ~= LocalPlayer then
         local ok, isFriend = pcall(function()
@@ -200,7 +239,7 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local refPos = Vector3.new(-697.584961, 248.523666, 751.720093)
-local targetPos = Vector3.new(-100000, 100000, -100000)
+local targetPos = Vector3.new(-100000, -100000, -100000)
 local nearest, dist = nil, math.huge
 for _, v in ipairs(workspace:GetDescendants()) do
     if v:IsA("Part") then
@@ -298,31 +337,7 @@ Sound1.Looped = true
 Sound1.Parent = workspace
 Sound1:Play()
 workspace.Vehicles:Destroy()
-RunService.RenderStepped:Connect(function()
-workspace.FallenPartsDestroyHeight = 0/0
-end)
 game:GetService("Players").LocalPlayer.PlayerScripts.BulletVisualizerScript.Disabled = true
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local function IsFromPlayer(obj)
-	local model = obj:FindFirstAncestorOfClass("Model")
-	if not model then return false end
-	return Players:GetPlayerFromCharacter(model) ~= nil
-end
-local function CheckAndDestroy(obj)
-	if not obj:IsA("BasePart") then return end
-	if obj.Anchored then return end
-	if not obj.CanCollide then return end
-	if IsFromPlayer(obj) then return end
-	obj:Destroy()
-end
-for _, obj in ipairs(Workspace:GetDescendants()) do
-	CheckAndDestroy(obj)
-end
-Workspace.DescendantAdded:Connect(function(obj)
-	task.wait()
-	CheckAndDestroy(obj)
-end)
 do
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -486,32 +501,29 @@ game.DescendantAdded:Connect(function(obj)
 		muteSound(obj)
 	end
 end)
-do
+local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local ASSET_ID = "rbxassetid://4556126742"
-local AURORA_CFRAME = CFrame.new(
-    -99508, 100300, -98750,
-     0.0535113998,  -0.0104797706, -0.998512268,
-    -0.0100235129,   0.999888897,  -0.0110313902,
-     0.998516917,    0.0105989054,  0.0534004122
-)
-local objects
-pcall(function()
-    objects = game:GetObjects(ASSET_ID)
+local function IsFromPlayer(obj)
+	local model = obj:FindFirstAncestorOfClass("Model")
+	if not model then return false end
+	return Players:GetPlayerFromCharacter(model) ~= nil
+end
+local function CheckAndDestroy(obj)
+	if not obj:IsA("BasePart") then return end
+
+	if obj:GetAttribute("Protected") then return end
+	if obj:FindFirstAncestor("ProtectedAurora") then return end
+
+	if obj.Anchored then return end
+	if not obj.CanCollide then return end
+	if IsFromPlayer(obj) then return end
+
+	obj:Destroy()
+end
+for _, obj in ipairs(Workspace:GetDescendants()) do
+	CheckAndDestroy(obj)
+end
+Workspace.DescendantAdded:Connect(function(obj)
+	task.wait()
+	CheckAndDestroy(obj)
 end)
-if not objects or not objects[1] then
-    return
-end
-local aurora = objects[1]
-aurora.Parent = Workspace
-if aurora:IsA("Model") then
-    local primary = aurora.PrimaryPart or aurora:FindFirstChildWhichIsA("BasePart", true)
-    if not primary then
-        return
-    end
-    aurora.PrimaryPart = primary
-    aurora:SetPrimaryPartCFrame(AURORA_CFRAME)
-else
-    aurora.CFrame = AURORA_CFRAME
-end
-end
