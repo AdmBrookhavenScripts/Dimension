@@ -117,6 +117,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 task.spawn(function()
 local Players = game:GetService("Players")
+
 local protectedPosition = Vector3.new(
 	-697.584961,
 	248.523666,
@@ -140,6 +141,8 @@ if not closestPart then
 	return
 end
 
+local aurora = workspace:FindFirstChild("AuroraBorealis", true)
+
 for _, obj in ipairs(workspace:GetDescendants()) do
 	if obj:IsA("BasePart") then
 		if obj == closestPart then
@@ -151,6 +154,10 @@ for _, obj in ipairs(workspace:GetDescendants()) do
 		end
 		
 		if obj:IsDescendantOf(workspace.WorkspaceCom["001_TrafficCones"]) then
+			continue
+		end
+
+		if aurora and obj:IsDescendantOf(aurora) then
 			continue
 		end
 
@@ -481,34 +488,27 @@ game.DescendantAdded:Connect(function(obj)
 end)
 do
 local Workspace = game:GetService("Workspace")
-
 local ASSET_ID = "rbxassetid://4556126742"
-
 local AURORA_CFRAME = CFrame.new(
     -99508, 100300, -98750,
      0.0535113998,  -0.0104797706, -0.998512268,
     -0.0100235129,   0.999888897,  -0.0110313902,
      0.998516917,    0.0105989054,  0.0534004122
 )
-
 local objects
 pcall(function()
     objects = game:GetObjects(ASSET_ID)
 end)
-
 if not objects or not objects[1] then
     return
 end
-
 local aurora = objects[1]
 aurora.Parent = Workspace
-
 if aurora:IsA("Model") then
     local primary = aurora.PrimaryPart or aurora:FindFirstChildWhichIsA("BasePart", true)
     if not primary then
         return
     end
-
     aurora.PrimaryPart = primary
     aurora:SetPrimaryPartCFrame(AURORA_CFRAME)
 else
