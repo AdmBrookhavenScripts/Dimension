@@ -250,6 +250,7 @@ Lighting:GetPropertyChangedSignal("ClockTime"):Connect(function()
 	Lighting.ClockTime = 14
 end)
 RunService.RenderStepped:Connect(function()
+game:GetService("Players").LocalPlayer.PlayerGui.MainGUIHandler.Family.Prompts.FamilyInviteHidingFrame.Visible = false
 workspace.FallenPartsDestroyHeight = 0/0
 for _, player in ipairs(Players:GetPlayers()) do
     if player ~= LocalPlayer then
